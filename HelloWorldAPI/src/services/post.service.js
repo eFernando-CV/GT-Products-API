@@ -35,3 +35,12 @@ export const deletePost = (id) => {
     posts.splice(postIndex, 1);
     return true;
 };
+
+export const patchPost = (id, updateData) => {
+    const postIndex = posts.findIndex(p => p.id === id);
+    if (postIndex === -1) {
+        return null;
+    }
+    posts[postIndex] = { ...posts[postIndex], ...updateData };
+    return posts[postIndex];
+};
