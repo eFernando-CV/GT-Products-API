@@ -6,6 +6,8 @@ import productRoutes from './src/routes/product.routes.js';
 import commentRoutes from './src/routes/comment.routes.js';
 
 import { testConnection } from './src/config/db.js';
+import { errorHandler } from './src/middlewares/errorHandler.middleware.js'; // IMPORT
+
 import config from './src/config/index.js';
 
 const app = express();
@@ -19,6 +21,8 @@ app.use(express.json());
 app.use('/posts', postRoutes);
 app.use('/products', productRoutes);
 app.use('/comments', commentRoutes);
+
+app.use(errorHandler);
 
 app.listen(config.port, () => {
   console.log(`Server is running on http://localhost:${config.port}`);
