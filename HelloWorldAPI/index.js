@@ -4,9 +4,10 @@ import morgan from 'morgan';
 import postRoutes from './src/routes/post.routes.js';
 import productRoutes from './src/routes/product.routes.js';
 import commentRoutes from './src/routes/comment.routes.js';
+import userRoutes from './src/routes/user.routes.js';
 
 import { testConnection } from './src/config/db.js';
-import { errorHandler } from './src/middlewares/errorHandler.middleware.js'; // IMPORT
+import { errorHandler } from './src/middlewares/errorHandler.middleware.js';
 
 import config from './src/config/index.js';
 
@@ -18,9 +19,10 @@ if (config.nodeEnv === 'development') {
 
 app.use(express.json());
 
-app.use('/posts', postRoutes);
-app.use('/products', productRoutes);
-app.use('/comments', commentRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/users', userRoutes);
 
 app.use(errorHandler);
 

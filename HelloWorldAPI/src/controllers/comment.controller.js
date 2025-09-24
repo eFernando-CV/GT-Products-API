@@ -1,58 +1,88 @@
 import * as commentService from '../services/comment.service.js';
 
-export const getAllComments = (req, res) => {
-  const comments = commentService.getAllComments();
-  res.json(comments);
+export const getAllComments = async (req, res, next) => {
+    try {
+        const comments = await commentService.getAllComments();
+        res.json(comments);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const getCommentById = (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const comment = commentService.getCommentById(id);
-  if (!comment) {
-    return res.status(404).json({ message: 'Comment not found.' });
-  }
-  res.json(comment);
+export const getCommentById = async (req, res, next) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const comment = await commentService.getCommentById(id);
+        res.json(comment);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const getCommentsByPostId = (req, res) => {
-  const postId = parseInt(req.params.postId, 10);
-  const comments = commentService.getCommentsByPostId(postId);
-  res.json(comments);
+export const getCommentsByPostId = async (req, res, next) => {
+    try {
+        const postId = parseInt(req.params.postId, 10);
+        const comments = await commentService.getCommentsByPostId(postId);
+        res.json(comments);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const createComment = (req, res) => {
-  const postId = parseInt(req.params.postId, 10);
-  const { text } = req.body;
-  if (!text) {
-    return res.status(400).json({ message: 'Text is required.' });
-  }
-  const newComment = commentService.createComment(postId, { text });
-  res.status(201).json(newComment);
+export const createComment = async (req, res, next) => {
+    try {
+        const postId = parseInt(req.params.postId, 10);
+        const { text, authorId } = req.body;
+        
+        const newComment = await commentService.createComment({
+            text,
+            postId,
+            authorId
+        });
+        
+        res.status(201).json(newComment);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const updateComment = (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const updated = commentService.updateComment(id, req.body);
-  if (!updated) {
-    return res.status(404).json({ message: 'Comment not found.' });
-  }
-  res.json(updated);
+export const updateComment = async (req, res, next) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const updated = await commentService.updateComment(id, req.body);
+        res.json(updated);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const patchComment = (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const patched = commentService.patchComment(id, req.body);
-  if (!patched) {
-    return res.status(404).json({ message: 'Comment not found.' });
-  }
-  res.json(patched);
+export const patchComment = async (req, res, next) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const patched = await commentService.patchComment(id, req.body);
+        res.json(patched);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const deleteComment = (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const success = commentService.deleteComment(id);
-  if (!success) {
-    return res.status(404).json({ message: 'Comment not found.' });
-  }
-  res.status(204).send();
+export const deleteComment = async (req, res, next) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        await commentService.deleteComment(id);
+        res.status(204).send();
+    } catch (error) {
+        next(error);
+    }
+};
+
+// New controller function
+export const getCommentsByAuthorId = async (req, res, next) => {
+    try {
+        const authorId = parseInt(req.params.authorId, 10);
+        const comments = await commentService.getCommentsByAuthorId(authorId);
+        res.json(comments);
+    } catch (error) {
+        next(error);
+    }
 };
