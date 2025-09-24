@@ -1,18 +1,21 @@
 import { ApiError } from '../utils/ApiError.js';
 
 export const errorHandler = (err, req, res, next) => {
-    let statusCode = 500;
-    let message = "Internal Server Error";
+  console.error(err);
 
-    if (err instanceof ApiError) {
-        statusCode = err.statusCode;
-        message = err.message;
-    }
+  let statusCode = 500;
+  let message = "Internal Server Error";
 
-    // Add more specific error checks here if needed
+  if (err instanceof ApiError) {
+    statusCode = err.statusCode;
+    message = err.message;
+  } else if (err.code === 'ER_NO_REFERENCED_ROW_2') {
+    statusCode = 400;
+    message = 'Invalid postId or authorId. The specified post or user does not exist.';
+  }
 
-    return res.status(statusCode).json({
-        success: false,
-        message: message,
-    });
+  return res.status(statusCode).json({
+    success: false,
+    message: message,
+  });
 };
