@@ -60,16 +60,50 @@ export const createPost = async (postData, authorId) => {
     }
 };
 
-export const updatePost = async (id, postData) => {
+export const updatePost = async (id, postData, userId) => { 
     const { title, content } = postData;
-    const [result] = await pool.query(
+
+    const post = await getPostById(id);
+
+    if (post.authorId !== userId) {
+        throw new ApiError(403, "Forbidden: You do not have permission to edit this post.");
+    }
+
+    await pool.query(
         'UPDATE posts SET title = ?, content = ? WHERE id = ?',
         [title, content, id]
     );
-    if (result.affectedRows === 0) {
-        return null;
+    const updatedPost = await getPostById(id);
+    return updatedPost;
+};
+
+export const deletePost = async (id, userId) => { 
+    const post = await getPostById(id); 
+
+    if (post.authorId !== userId) {
+        throw new ApiError(403, "Forbidden: You do not have permission to delete this post.");
     }
-    return getPostById(id);
+    
+    const [result] = await pool.query('DELETE FROM posts WHERE id = ?', [id]);
+    return result.affectedRows;
+};
+
+export const getPostsByAuthor = async (authorId) => {
+    const [posts] = await pool.query(`
+        SELECT 
+            p.id,
+            p.title,
+            p.content,
+            p.authorId,
+            u.username AS authorUsername,
+            u.email AS authorEmail
+        FROM 
+            posts p
+        JOIN 
+            users u ON p.authorId = u.id
+        WHERE p.authorId = ?
+    `, [authorId]);
+    return posts;
 };
 
 export const partiallyUpdatePost = async (id, updates) => {
@@ -91,27 +125,4 @@ export const partiallyUpdatePost = async (id, updates) => {
         return null;
     }
     return getPostById(id);
-};
-
-export const deletePost = async (id) => {
-    const [result] = await pool.query('DELETE FROM posts WHERE id = ?', [id]);
-    return result.affectedRows > 0;
-};
-
-export const getPostsByAuthor = async (authorId) => {
-    const [posts] = await pool.query(`
-        SELECT 
-            p.id,
-            p.title,
-            p.content,
-            p.authorId,
-            u.username AS authorUsername,
-            u.email AS authorEmail
-        FROM 
-            posts p
-        JOIN 
-            users u ON p.authorId = u.id
-        WHERE p.authorId = ?
-    `, [authorId]);
-    return posts;
 };

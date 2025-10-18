@@ -9,9 +9,8 @@ const router = Router();
 router.get('/', postController.getAllPosts);
 router.get('/:id', postController.getPostById);
 router.post('/', authMiddleware, validatePost, postController.createPost);
-router.put('/:id', postController.updatePost);
-router.delete('/:id', postController.deletePost);
-
+router.put('/:id', authMiddleware, validatePost, postController.updatePost);
+router.delete('/:id', authMiddleware, postController.deletePost);
 router.use('/:postId/comments', commentRoutes);
 
 export default router;

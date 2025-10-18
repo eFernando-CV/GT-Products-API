@@ -30,19 +30,22 @@ export const createPost = asyncHandler(async (req, res) => {
     res.status(201).json(new ApiResponse(201, newPost, "Post created successfully"));
 });
 
-export const updatePost = async (req, res) => {
-  try {
+export const updatePost = asyncHandler(async (req, res) => {
     const postId = parseInt(req.params.id, 10);
-    const post = await postService.updatePost(postId, req.body);
+    const postData = req.body;
+    const userId = req.user.id; 
 
-    if (!post) {
-      return res.status(404).json({ message: 'Post not found.' });
-    }
-    res.json(post);
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating post', error: error.message });
-  }
-};
+    const updatedPost = await postService.updatePost(postId, postData, userId);
+    res.status(200).json(new ApiResponse(200, updatedPost, "Post updated successfully"));
+});
+
+export const deletePost = asyncHandler(async (req, res) => {
+    const postId = parseInt(req.params.id, 10);
+    const userId = req.user.id;
+
+    await postService.deletePost(postId, userId);
+    res.status(200).json(new ApiResponse(200, null, "Post deleted successfully"));
+});
 
 export const partiallyUpdatePost = async (req, res) => {
   try {
@@ -55,19 +58,5 @@ export const partiallyUpdatePost = async (req, res) => {
     res.json(updatedPost);
   } catch (error) {
     res.status(500).json({ message: 'Error partially updating post', error: error.message });
-  }
-};
-
-export const deletePost = async (req, res) => {
-  try {
-    const postId = parseInt(req.params.id, 10);
-    const success = await postService.deletePost(postId);
-
-    if (!success) {
-      return res.status(404).json({ message: 'Post not found.' });
-    }
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ message: 'Error deleting post', error: error.message });
   }
 };
